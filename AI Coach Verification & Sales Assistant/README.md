@@ -111,6 +111,26 @@ A conversational AI system that guides coaches through the complete journey:
 - **Accelerator Programs** - Need systematic verification
 - **SaaS Founders** - Building coaching directories
 - **Community Platforms** - Monetizing coaching access
+- **Platform Integrations** - Can be integrated as an onboarding module into larger platforms (Upwork-style marketplaces, creator platforms, etc.)
+
+---
+
+## Platform Integration (Optional)
+
+**This system is designed as a standalone product but can integrate with larger platforms via API.**
+
+**What this system handles:**
+- Coach onboarding and credential collection
+- Trust profile generation
+- Lead response assistance
+- Verification workflow management
+
+**Integration options:**
+- **API Integration** - Plug this system into your existing platform via REST API
+- **Embedded Widget** - Embed the onboarding flow into your platform
+- **Standalone** - Use as a complete, independent verification system
+
+**Positioning:** A specialized onboarding and verification module that works standalone or can integrate with larger coaching platforms, marketplaces, or directories.
 
 ---
 
