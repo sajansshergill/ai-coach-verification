@@ -167,7 +167,12 @@
                     <td>${coach.name}</td>
                     <td>${coach.email}</td>
                     <td>${coach.tier || 'N/A'}</td>
-                    <td><span class="status-badge status-${status}">${statusDisplay}</span></td>
+                    <td>
+                        <span class="status-badge status-${status}">${statusDisplay}</span>
+                        ${coach.rejectionReason && status === 'rejected' ? `
+                            <br><small style="color: var(--gray-600); font-size: 0.75rem;" title="${coach.rejectionReason}">${coach.rejectionReason.length > 30 ? coach.rejectionReason.substring(0, 30) + '...' : coach.rejectionReason}</small>
+                        ` : ''}
+                    </td>
                     <td>${new Date(coach.createdAt).toLocaleDateString()}</td>
                     <td>
                         <button onclick="viewCoach('${coach.id}')" class="btn btn-sm">View</button>
@@ -195,8 +200,14 @@
                     <h2>${coach.name}</h2>
                     <p><strong>Email:</strong> ${coach.email}</p>
                     <p><strong>Status:</strong> <span class="status-badge status-${status}">${statusDisplay}</span></p>
+                    ${coach.rejectionReason ? `
+                        <p><strong>Rejection Reason:</strong> <span style="color: var(--danger); font-style: italic;">${coach.rejectionReason}</span></p>
+                    ` : ''}
                     <p><strong>Tier:</strong> ${coach.tier || 'Not set'}</p>
                     <p><strong>Created:</strong> ${new Date(coach.createdAt).toLocaleString()}</p>
+                    ${coach.updatedAt && coach.updatedAt !== coach.createdAt ? `
+                        <p><strong>Last Updated:</strong> ${new Date(coach.updatedAt).toLocaleString()}</p>
+                    ` : ''}
 
                     <h3>Credentials</h3>
                     <div class="credentials-display">
@@ -264,20 +275,29 @@
         }
 
         async function rejectCoach(id) {
-            const reason = prompt('Reason for rejection:');
-            if (!reason) return;
+            const reason = prompt('Reason for rejection (required):');
+            if (!reason || reason.trim() === '') {
+                showToast('Rejection reason is required', 'error');
+                return;
+            }
 
             try {
                 const response = await fetch(`/api/coaches/${id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: 'rejected' })
+                    body: JSON.stringify({ 
+                        status: 'rejected',
+                        rejectionReason: reason.trim()
+                    })
                 });
 
                 if (response.ok) {
-                    showToast('Coach rejected', 'info');
+                    showToast('Coach rejected successfully', 'info');
                     closeModal();
                     loadCoaches();
+                } else {
+                    const data = await response.json();
+                    showToast(data.error || 'Error rejecting coach', 'error');
                 }
             } catch (error) {
                 console.error('Error:', error);
