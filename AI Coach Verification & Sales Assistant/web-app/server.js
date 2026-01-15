@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs').promises;
 const path = require('path');
@@ -13,6 +14,40 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('public'));
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: async (req, file, cb) => {
+    const coachId = req.body.coachId || req.params.id;
+    const uploadDir = path.join(__dirname, 'uploads', coachId);
+    try {
+      await fs.mkdir(uploadDir, { recursive: true });
+      cb(null, uploadDir);
+    } catch (error) {
+      cb(error);
+    }
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|pdf/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only PDF, JPG, and PNG files are allowed'));
+    }
+  }
+});
 
 // Data storage (using JSON file - replace with database in production)
 const DATA_FILE = path.join(__dirname, 'data', 'coaches.json');
@@ -366,6 +401,60 @@ Payment Verified: ${coach.credentials.paymentVerified ? 'Yes' : 'No'}
     });
   } catch (error) {
     console.error('Generate summary error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// File upload endpoint
+app.post('/api/coaches/:id/upload', upload.fields([
+  { name: 'certFiles', maxCount: 10 },
+  { name: 'testimonialFiles', maxCount: 10 }
+]), async (req, res) => {
+  try {
+    const coachId = req.params.id || req.body.coachId;
+    const coaches = await readCoaches();
+    const coach = coaches.find(c => c.id === coachId);
+    
+    if (!coach) {
+      return res.status(404).json({ error: 'Coach not found' });
+    }
+
+    // Store file information in coach credentials
+    if (!coach.credentials) {
+      coach.credentials = {};
+    }
+    if (!coach.credentials.uploadedFiles) {
+      coach.credentials.uploadedFiles = { certifications: [], testimonials: [] };
+    }
+
+    if (req.files.certFiles) {
+      coach.credentials.uploadedFiles.certifications = req.files.certFiles.map(f => ({
+        filename: f.filename,
+        originalname: f.originalname,
+        path: f.path,
+        size: f.size
+      }));
+    }
+
+    if (req.files.testimonialFiles) {
+      coach.credentials.uploadedFiles.testimonials = req.files.testimonialFiles.map(f => ({
+        filename: f.filename,
+        originalname: f.originalname,
+        path: f.path,
+        size: f.size
+      }));
+    }
+
+    const coachIndex = coaches.findIndex(c => c.id === coachId);
+    coaches[coachIndex] = coach;
+    await writeCoaches(coaches);
+
+    res.json({ 
+      message: 'Files uploaded successfully',
+      files: coach.credentials.uploadedFiles
+    });
+  } catch (error) {
+    console.error('Upload error:', error);
     res.status(500).json({ error: error.message });
   }
 });
