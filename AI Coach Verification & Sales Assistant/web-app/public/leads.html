@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lead Response Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>💬 Lead Response Assistant</h1>
+            <nav>
+                <a href="index.html">← Home</a>
+                <a href="admin.html">Admin Dashboard</a>
+            </nav>
+        </header>
+
+        <main class="leads-container">
+            <div class="form-section">
+                <h2>Generate Professional Lead Response</h2>
+                
+                <div class="form-group">
+                    <label for="leadMessage">Lead Inquiry *</label>
+                    <textarea id="leadMessage" rows="4" placeholder="Paste the lead's message here...&#10;&#10;Example: 'Hi, I'm interested in executive coaching. I'm a VP looking to transition to C-level. Can you help?'"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="coachProfile">Coach Profile *</label>
+                    <textarea id="coachProfile" rows="6" placeholder="Enter coach information...&#10;&#10;Example:&#10;Sarah Chen, Executive Coach, 5 years experience, ICF Certified, specializes in helping tech leaders advance to C-level positions."></textarea>
+                </div>
+
+                <button onclick="generateResponse()" class="btn btn-primary">Generate Response</button>
+            </div>
+
+            <div id="responseSection" class="response-section hidden">
+                <h3>Generated Response</h3>
+                <div id="responseContent" class="response-content">
+                    <!-- Generated response will appear here -->
+                </div>
+                <div class="response-actions">
+                    <button onclick="copyResponse()" class="btn btn-secondary">Copy to Clipboard</button>
+                    <button onclick="regenerateResponse()" class="btn btn-secondary">Regenerate</button>
+                    <button onclick="clearForm()" class="btn btn-outline">Clear & Start New</button>
+                </div>
+            </div>
+
+            <div class="examples-section">
+                <h3>💡 Example Inquiries</h3>
+                <div class="example-cards">
+                    <div class="example-card" onclick="fillExample('general')">
+                        <strong>General Inquiry</strong>
+                        <p>"I'm interested in executive coaching. Can you help me advance my career?"</p>
+                    </div>
+                    <div class="example-card" onclick="fillExample('price')">
+                        <strong>Price Concern</strong>
+                        <p>"I'm interested but concerned about the cost. How much does coaching cost?"</p>
+                    </div>
+                    <div class="example-card" onclick="fillExample('time')">
+                        <strong>Time Constraints</strong>
+                        <p>"I'm really busy. I'm not sure I have time for regular sessions. How does this work?"</p>
+                    </div>
+                    <div class="example-card" onclick="fillExample('skepticism')">
+                        <strong>Skepticism</strong>
+                        <p>"I've tried coaching before and it didn't work. How do I know this will be different?"</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const examples = {
+            general: {
+                message: "I'm interested in executive coaching. I'm a VP looking to transition to C-level. Can you help?",
+                profile: "Sarah Chen, Executive Coach, 5 years experience, ICF Certified, specializes in helping tech leaders advance to C-level positions."
+            },
+            price: {
+                message: "I'm interested but concerned about the cost. How much does coaching cost?",
+                profile: "Sarah Chen, Executive Coach, 5 years experience, ICF Certified, has helped over 40 executives advance their careers."
+            },
+            time: {
+                message: "I'm really busy. I'm not sure I have time for regular sessions. How does this work?",
+                profile: "Sarah Chen, Executive Coach, offers flexible scheduling with 30-minute sessions and strategic action steps between calls."
+            },
+            skepticism: {
+                message: "I've tried coaching before and it didn't work. How do I know this will be different?",
+                profile: "Sarah Chen, Executive Coach, 5 years experience, ICF Certified, 85% of clients report significant progress within 3 months."
+            }
+        };
+
+        function fillExample(type) {
+            const example = examples[type];
+            document.getElementById('leadMessage').value = example.message;
+            document.getElementById('coachProfile').value = example.profile;
+        }
+
+        async function generateResponse() {
+            const leadMessage = document.getElementById('leadMessage').value.trim();
+            const coachProfile = document.getElementById('coachProfile').value.trim();
+
+            if (!leadMessage || !coachProfile) {
+                showToast('Please fill in both fields', 'error');
+                return;
+            }
+
+            const responseSection = document.getElementById('responseSection');
+            const responseContent = document.getElementById('responseContent');
+            
+            responseSection.classList.remove('hidden');
+            responseContent.innerHTML = '<div class="loading">Generating response...</div>';
+
+            try {
+                const response = await fetch('/api/leads/response', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ leadMessage, coachProfile })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    responseContent.innerHTML = `<div class="error">Error: ${data.error}</div>`;
+                } else {
+                    responseContent.innerHTML = `
+                        <div class="generated-response">
+                            ${data.response.replace(/\n/g, '<br>')}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                responseContent.innerHTML = '<div class="error">Error generating response. Make sure OpenAI API key is configured.</div>';
+            }
+        }
+
+        function copyResponse() {
+            const responseText = document.querySelector('.generated-response').textContent;
+            navigator.clipboard.writeText(responseText).then(() => {
+                showToast('Response copied to clipboard!', 'success');
+            }).catch(() => {
+                showToast('Failed to copy. Please select and copy manually.', 'error');
+            });
+        }
+        
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function regenerateResponse() {
+            generateResponse();
+        }
+
+        function clearForm() {
+            document.getElementById('leadMessage').value = '';
+            document.getElementById('coachProfile').value = '';
+            document.getElementById('responseSection').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

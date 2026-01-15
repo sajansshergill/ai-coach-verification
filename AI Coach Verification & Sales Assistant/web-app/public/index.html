@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Coach Verification & Sales Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🥇 AI Coach Verification & Sales Assistant</h1>
+            <p class="subtitle">Platform-Agnostic, Plug-and-Play Business-in-a-Box</p>
+        </header>
+
+        <main class="main-content">
+            <div class="welcome-section">
+                <h2>Welcome to the Web Application</h2>
+                <p>This web application implements all the features from the AI Coach Verification package.</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card" onclick="window.location.href='onboarding.html'">
+                    <div class="feature-icon">👤</div>
+                    <h3>Coach Onboarding</h3>
+                    <p>AI-guided credential collection and verification</p>
+                    <div class="feature-link">Start Onboarding →</div>
+                </div>
+
+                <div class="feature-card" onclick="window.location.href='admin.html'">
+                    <div class="feature-icon">📊</div>
+                    <h3>Admin Dashboard</h3>
+                    <p>Review and manage coach verifications</p>
+                    <div class="feature-link">View Dashboard →</div>
+                </div>
+
+                <div class="feature-card" onclick="window.location.href='leads.html'">
+                    <div class="feature-icon">💬</div>
+                    <h3>Lead Response</h3>
+                    <p>AI assistant for coach lead responses</p>
+                    <div class="feature-link">Try It →</div>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>🚀 Quick Start</h3>
+                <ol>
+                    <li>Make sure you've installed dependencies: <code>npm install</code></li>
+                    <li>Set up your OpenAI API key in <code>.env</code> file</li>
+                    <li>Start the server: <code>npm start</code></li>
+                    <li>Open this page in your browser</li>
+                </ol>
+            </div>
+
+            <div class="status-section">
+                <h3>System Status</h3>
+                <div id="status-indicator" class="status-loading">Checking...</div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>AI Coach Verification & Sales Assistant v1.0.0</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

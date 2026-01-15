@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Coach Verification</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>📊 Admin Dashboard</h1>
+            <nav>
+                <a href="index.html">← Home</a>
+                <a href="onboarding.html">Coach Onboarding</a>
+            </nav>
+        </header>
+
+        <main class="admin-container">
+            <!-- Stats Bar -->
+            <div class="stats-bar">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalCoaches">0</div>
+                    <div class="stat-label">Total Coaches</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="verifiedCoaches">0</div>
+                    <div class="stat-label">Verified</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="pendingCoaches">0</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="flaggedCoaches">0</div>
+                    <div class="stat-label">Needs Review</div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters">
+                <select id="statusFilter" onchange="loadCoaches()">
+                    <option value="">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="pending_review">Pending Review</option>
+                    <option value="verified">Verified</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+                <input type="text" id="searchInput" placeholder="Search coaches..." onkeyup="loadCoaches()">
+                <button onclick="loadCoaches()" class="btn btn-secondary">Refresh</button>
+            </div>
+
+            <!-- Coaches Table -->
+            <div class="coaches-table-container">
+                <table class="coaches-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Tier</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="coachesTableBody">
+                        <tr>
+                            <td colspan="6" class="loading">Loading coaches...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Coach Detail Modal -->
+            <div id="coachModal" class="modal hidden">
+                <div class="modal-content">
+                    <span class="close" onclick="closeModal()">&times;</span>
+                    <div id="modalContent">
+                        <!-- Coach details will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let allCoaches = [];
+
+        async function loadCoaches() {
+            try {
+                const response = await fetch('/api/coaches');
+                allCoaches = await response.json();
+
+                // Apply filters
+                const statusFilter = document.getElementById('statusFilter').value;
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+                let filteredCoaches = allCoaches;
+
+                if (statusFilter) {
+                    filteredCoaches = filteredCoaches.filter(c => c.status === statusFilter);
+                }
+
+                if (searchTerm) {
+                    filteredCoaches = filteredCoaches.filter(c => 
+                        c.name.toLowerCase().includes(searchTerm) || 
+                        c.email.toLowerCase().includes(searchTerm)
+                    );
+                }
+
+                // Update stats
+                updateStats(allCoaches);
+
+                // Render table
+                renderTable(filteredCoaches);
+            } catch (error) {
+                console.error('Error loading coaches:', error);
+                document.getElementById('coachesTableBody').innerHTML = 
+                    '<tr><td colspan="6" class="error">Error loading coaches</td></tr>';
+            }
+        }
+
+        function updateStats(coaches) {
+            document.getElementById('totalCoaches').textContent = coaches.length;
+            document.getElementById('verifiedCoaches').textContent = 
+                coaches.filter(c => c.status === 'verified').length;
+            document.getElementById('pendingCoaches').textContent = 
+                coaches.filter(c => c.status === 'pending' || c.status === 'pending_review').length;
+            document.getElementById('flaggedCoaches').textContent = 
+                coaches.filter(c => c.status === 'pending_review').length;
+        }
+
+        function renderTable(coaches) {
+            const tbody = document.getElementById('coachesTableBody');
+
+            if (coaches.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty">No coaches found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = coaches.map(coach => `
+                <tr>
+                    <td>${coach.name}</td>
+                    <td>${coach.email}</td>
+                    <td>${coach.tier || 'N/A'}</td>
+                    <td><span class="status-badge status-${coach.status}">${coach.status}</span></td>
+                    <td>${new Date(coach.createdAt).toLocaleDateString()}</td>
+                    <td>
+                        <button onclick="viewCoach('${coach.id}')" class="btn btn-sm">View</button>
+                        ${coach.status === 'pending_review' ? `
+                            <button onclick="approveCoach('${coach.id}')" class="btn btn-sm btn-success">Approve</button>
+                            <button onclick="rejectCoach('${coach.id}')" class="btn btn-sm btn-danger">Reject</button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function viewCoach(id) {
+            try {
+                const response = await fetch(`/api/coaches/${id}`);
+                const coach = await response.json();
+
+                const modalContent = document.getElementById('modalContent');
+                modalContent.innerHTML = `
+                    <h2>${coach.name}</h2>
+                    <p><strong>Email:</strong> ${coach.email}</p>
+                    <p><strong>Status:</strong> <span class="status-badge status-${coach.status}">${coach.status}</span></p>
+                    <p><strong>Tier:</strong> ${coach.tier || 'Not set'}</p>
+                    <p><strong>Created:</strong> ${new Date(coach.createdAt).toLocaleString()}</p>
+
+                    <h3>Credentials</h3>
+                    <div class="credentials-display">
+                        ${Object.keys(coach.credentials).length > 0 ? 
+                            JSON.stringify(coach.credentials, null, 2).replace(/\n/g, '<br>') : 
+                            'No credentials collected yet'}
+                    </div>
+
+                    <h3>Trust Summary</h3>
+                    <div class="trust-summary-display">
+                        ${coach.trustSummary || 'Not generated yet'}
+                    </div>
+
+                    <h3>Conversation</h3>
+                    <div class="conversation-display">
+                        ${coach.conversation.map(msg => `
+                            <div class="conversation-message message-${msg.role}">
+                                <strong>${msg.role === 'user' ? 'Coach' : 'AI'}:</strong>
+                                ${msg.content.replace(/\n/g, '<br>')}
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="modal-actions">
+                        ${coach.status === 'pending_review' ? `
+                            <button onclick="approveCoach('${coach.id}')" class="btn btn-success">Approve</button>
+                            <button onclick="rejectCoach('${coach.id}')" class="btn btn-danger">Reject</button>
+                        ` : ''}
+                        ${!coach.trustSummary ? `
+                            <button onclick="generateSummary('${coach.id}')" class="btn btn-secondary">Generate Summary</button>
+                        ` : ''}
+                    </div>
+                `;
+
+                document.getElementById('coachModal').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error loading coach details');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('coachModal').classList.add('hidden');
+        }
+
+        async function approveCoach(id) {
+            if (!confirm('Approve this coach?')) return;
+
+            try {
+                const response = await fetch(`/api/coaches/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'verified' })
+                });
+
+                if (response.ok) {
+                    showToast('Coach approved successfully!', 'success');
+                    closeModal();
+                    loadCoaches();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Error approving coach. Please try again.', 'error');
+            }
+        }
+
+        async function rejectCoach(id) {
+            const reason = prompt('Reason for rejection:');
+            if (!reason) return;
+
+            try {
+                const response = await fetch(`/api/coaches/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'rejected' })
+                });
+
+                if (response.ok) {
+                    showToast('Coach rejected', 'info');
+                    closeModal();
+                    loadCoaches();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Error rejecting coach. Please try again.', 'error');
+            }
+        }
+
+        async function generateSummary(id) {
+            try {
+                const response = await fetch(`/api/coaches/${id}/generate-summary`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    showToast('Trust summary generated!', 'success');
+                    viewCoach(id);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Error generating summary. Please try again.', 'error');
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('coachModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Load coaches on page load
+        loadCoaches();
+    </script>
+</body>
+</html>
