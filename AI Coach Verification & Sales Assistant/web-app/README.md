@@ -12,6 +12,8 @@ Complete web application implementing all features from the AI Coach Verificatio
 - npm or yarn
 - OpenAI API key (get from https://platform.openai.com/api-keys)
 
+**Note:** The web app is optional. You can test the core system in 15 minutes using just ChatGPT or Claude—see `START_HERE.md` for the no-code test.
+
 ### Installation
 
 1. **Navigate to web-app directory:**

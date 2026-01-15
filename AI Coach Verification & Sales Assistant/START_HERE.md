@@ -1,15 +1,29 @@
 # 🚀 START HERE - Quick Setup Guide
 
-Welcome! This guide will get you up and running with the **AI Coach Verification & Sales Assistant** in **30 minutes or less**.
+Welcome! This guide will get you up and running with the **AI Coach Verification & Sales Assistant** in **15-30 minutes**.
 
 ---
 
 ## Prerequisites
 
-- Basic understanding of AI tools (ChatGPT, Claude, or similar)
-- Access to a chatbot/conversation interface (or plan to build one)
-- A coaching platform or marketplace (or plan to build one)
-- 30 minutes of focused time
+- **ChatGPT (GPT-4 recommended)** or **Claude (free at claude.ai)**
+- Basic understanding of AI tools (optional—the prompts are ready to use)
+- A coaching platform or marketplace (optional—test standalone first)
+- 15-30 minutes of focused time
+
+**What this test proves:** This system can be evaluated, demoed, and validated **without any setup, APIs, or integrations**, making it suitable as a true **plug-and-play AI business**.
+
+---
+
+## ⚠️ Important: AI-Assisted, Not AI-Controlled
+
+**Critical Note:** The AI never approves or rejects verification. It only assists with:
+- Information collection
+- Completeness checking  
+- Readiness assessment
+- Trust signal summarization
+
+**Final verification decisions are always made by human reviewers.** The AI flags profiles for review when uncertain, ensuring quality and safety.
 
 ---
 
@@ -22,7 +36,25 @@ Read the `README.md` to understand:
 
 ---
 
-## Step 2: Review the AI Prompts (10 minutes)
+## Step 2: Quick 15-Minute No-Code Test
+
+**Test the system without any setup:**
+
+1. Open ChatGPT (GPT-4) or Claude (free)
+2. Copy the entire prompt from `ai-onboarding/coach-onboarding-prompt.txt`
+3. Paste it into ChatGPT/Claude
+4. Start a conversation: "I'm Sarah Chen, I want to get verified for Pro tier"
+5. Follow the flow and watch the AI guide you through verification
+
+**What this demonstrates:**
+- ✅ Coaches can be onboarded without human intervention
+- ✅ Verification data is collected in a structured format
+- ✅ Trust signals are summarized clearly for review
+- ✅ The core engine works before any technical integration
+
+---
+
+## Step 3: Review the AI Prompts (10 minutes)
 
 Open `ai-onboarding/` directory and review:
 
@@ -31,17 +63,6 @@ Open `ai-onboarding/` directory and review:
 3. **trust-summary-prompt.txt** - How trust summaries are generated
 
 **Action:** Copy these prompts into your AI system (ChatGPT, Claude API, or custom chatbot)
-
----
-
-## Step 3: Set Up Your Website Copy (5 minutes)
-
-Open `website/landing-copy.md` and:
-- Copy the copy into your landing page
-- Customize with your brand name
-- Review `demo-structure.txt` for demo video structure
-
-**Action:** Add this copy to your marketing site or landing page builder
 
 ---
 
@@ -87,22 +108,14 @@ Read `automations/` directory:
 
 ---
 
-## Step 7: Record Your Demo (Optional but Recommended)
-
-Use `loom/setup-walkthrough-outline.md` to:
-- Script your demo video
-- Show the system in action
-- Highlight key features
-
----
-
 ## Implementation Options
 
-### Option A: Manual Testing (Easiest)
-- Use prompts directly in ChatGPT/Claude
+### Option A: Manual Testing (Easiest - Recommended to Start)
+- Use prompts directly in ChatGPT (GPT-4 recommended) or Claude
 - Manually review outputs
 - Copy-paste responses to coaches
-- **Time: 30 minutes to test**
+- **Time: 15-30 minutes to test**
+- **No code, no setup, no APIs required**
 
 ### Option B: Semi-Automated (Recommended)
 - Use AI API (OpenAI, Anthropic) with a simple webhook
@@ -114,9 +127,21 @@ Use `loom/setup-walkthrough-outline.md` to:
 - Build a full chatbot interface
 - Integrate with your platform's backend
 - Automated workflows end-to-end
-- **Time: 1-2 days to implement**
+- **Time: 1-2 days for complete implementation**
 
 **Start with Option A, then scale to B or C based on demand.**
+
+---
+
+## Why This Matters
+
+This quick test demonstrates that:
+- ✅ **Coaches can be onboarded without human intervention** — The AI guides them through credential collection conversationally
+- ✅ **Verification data is collected in a structured format** — All credentials are organized and ready for review
+- ✅ **Trust signals are summarized clearly for review** — AI generates professional profiles that highlight credibility
+- ✅ **Lead response quality improves immediately** — Coaches get AI assistance for professional lead responses
+
+**This is the core engine of the business** — integrations simply automate what you see here. The AI conversation flow, credential collection logic, and trust assessment work independently of any platform.
 
 ---
 
@@ -140,20 +165,33 @@ A: Not for initial testing. Option A requires no coding. Options B and C require
 A: Yes! All prompts and copy are generic and can be rebranded.
 
 **Q: What AI should I use?**  
-A: ChatGPT-4, Claude 3, or similar. The prompts work with any modern LLM.
+A: **ChatGPT (GPT-4 recommended)** or **Claude (free at claude.ai)**. The prompts work with any modern LLM, but GPT-4 or Claude 3 provide the best results.
 
 **Q: How do I handle edge cases?**  
-A: The verification logic includes flags for manual review when AI is uncertain.
+A: The verification logic includes flags for manual review when AI is uncertain. **Important:** The AI never approves or rejects verification—it only assists with collection and assessment. Final decisions are always made by human reviewers.
+
+**Q: Does the AI approve coaches automatically?**  
+A: **No.** The AI assists with credential collection and flags profiles for manual review. Human reviewers make all final approval/rejection decisions. This ensures quality and safety.
 
 ---
 
 ## Next Steps
 
-1. ✅ Complete the setup steps above
-2. 📹 Record a demo video (see `loom/`)
-3. 🎯 Test with 3-5 real coaches
-4. 📊 Gather feedback and iterate
-5. 🚀 Launch!
+1. ✅ Complete the 15-minute no-code test (Step 2)
+2. ✅ Review the AI prompts (Step 3)
+3. ✅ Set up admin workflow (Step 4)
+4. ✅ Test with 3-5 real coaches
+5. ✅ Scale to automation when ready
+
+---
+
+## Implementation Time Estimates
+
+- **Manual Testing (No Code):** 15-30 minutes using ChatGPT or Claude
+- **Semi-Automated (API Integration):** 2-4 hours with OpenAI/Anthropic API
+- **Full Production Web App:** 1-2 days for complete implementation
+
+The system is designed to work at any scale—start simple, scale as needed.
 
 ---
 
@@ -176,8 +214,8 @@ All documentation is in the respective directories. Review:
 - `ai-onboarding/` for AI prompts
 - `admin/` for review workflows
 - `sales/` for lead response scripts
-- `website/` for marketing copy
+- `examples/` for sample outputs
 
 ---
 
-**Ready? Let's build! 🚀**
+**Ready? Start with the 15-minute no-code test! 🚀**

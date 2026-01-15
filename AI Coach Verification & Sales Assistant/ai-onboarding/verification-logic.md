@@ -4,6 +4,21 @@ This document explains how the AI assistant determines verification status, flag
 
 ---
 
+## ⚠️ Critical: AI-Assisted, Not AI-Controlled
+
+**The AI never approves or rejects verification automatically.**
+
+The AI only:
+- ✅ Assists with credential collection
+- ✅ Checks completeness
+- ✅ Flags missing items
+- ✅ Summarizes trust signals
+- ✅ Suggests missing steps
+
+**All final verification decisions are made by human reviewers.** The AI flags profiles for manual review when uncertain, ensuring quality and safety. This is a **risk-controlled approach** that maintains human oversight while leveraging AI efficiency.
+
+---
+
 ## Verification Tiers
 
 ### Basic (Minimum Verification)
@@ -22,7 +37,8 @@ This document explains how the AI assistant determines verification status, flag
 - Collect minimum requirements
 - Confirm completion
 - Generate basic trust summary
-- Approve automatically (no manual review needed)
+- Flag for manual review if incomplete or uncertain
+- **Note:** Even Basic tier requires human review for final approval (AI never auto-approves)
 
 ---
 
