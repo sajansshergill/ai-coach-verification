@@ -185,9 +185,15 @@ app.put('/api/coaches/:id', async (req, res) => {
       return res.status(404).json({ error: 'Coach not found' });
     }
 
+    // Normalize status to lowercase for consistency
+    const updateData = { ...req.body };
+    if (updateData.status) {
+      updateData.status = updateData.status.toLowerCase();
+    }
+
     coaches[index] = {
       ...coaches[index],
-      ...req.body,
+      ...updateData,
       updatedAt: new Date().toISOString()
     };
 

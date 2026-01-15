@@ -46,6 +46,7 @@
                     <option value="verified">Verified</option>
                     <option value="rejected">Rejected</option>
                 </select>
+                <button onclick="document.getElementById('statusFilter').value=''; document.getElementById('searchInput').value=''; loadCoaches();" class="btn btn-outline">Clear Filters</button>
                 <input type="text" id="searchInput" placeholder="Search coaches..." onkeyup="loadCoaches()">
                 <button onclick="loadCoaches()" class="btn btn-secondary">Refresh</button>
             </div>
@@ -98,7 +99,11 @@
                 let filteredCoaches = allCoaches;
 
                 if (statusFilter) {
-                    filteredCoaches = filteredCoaches.filter(c => c.status === statusFilter);
+                    // Normalize status for case-insensitive matching
+                    filteredCoaches = filteredCoaches.filter(c => {
+                        const coachStatus = (c.status || 'pending').toLowerCase();
+                        return coachStatus === statusFilter.toLowerCase();
+                    });
                 }
 
                 if (searchTerm) {
@@ -122,12 +127,26 @@
 
         function updateStats(coaches) {
             document.getElementById('totalCoaches').textContent = coaches.length;
-            document.getElementById('verifiedCoaches').textContent = 
-                coaches.filter(c => c.status === 'verified').length;
-            document.getElementById('pendingCoaches').textContent = 
-                coaches.filter(c => c.status === 'pending' || c.status === 'pending_review').length;
-            document.getElementById('flaggedCoaches').textContent = 
-                coaches.filter(c => c.status === 'pending_review').length;
+            
+            // Normalize status for accurate counting
+            const verifiedCount = coaches.filter(c => {
+                const status = (c.status || 'pending').toLowerCase();
+                return status === 'verified';
+            }).length;
+            
+            const pendingCount = coaches.filter(c => {
+                const status = (c.status || 'pending').toLowerCase();
+                return status === 'pending' || status === 'pending_review';
+            }).length;
+            
+            const flaggedCount = coaches.filter(c => {
+                const status = (c.status || 'pending').toLowerCase();
+                return status === 'pending_review';
+            }).length;
+            
+            document.getElementById('verifiedCoaches').textContent = verifiedCount;
+            document.getElementById('pendingCoaches').textContent = pendingCount;
+            document.getElementById('flaggedCoaches').textContent = flaggedCount;
         }
 
         function renderTable(coaches) {
@@ -138,22 +157,28 @@
                 return;
             }
 
-            tbody.innerHTML = coaches.map(coach => `
+            tbody.innerHTML = coaches.map(coach => {
+                // Normalize status to lowercase for consistency
+                const status = (coach.status || 'pending').toLowerCase();
+                const statusDisplay = status.charAt(0).toUpperCase() + status.slice(1).replace(/_/g, ' ');
+                
+                return `
                 <tr>
                     <td>${coach.name}</td>
                     <td>${coach.email}</td>
                     <td>${coach.tier || 'N/A'}</td>
-                    <td><span class="status-badge status-${coach.status}">${coach.status}</span></td>
+                    <td><span class="status-badge status-${status}">${statusDisplay}</span></td>
                     <td>${new Date(coach.createdAt).toLocaleDateString()}</td>
                     <td>
                         <button onclick="viewCoach('${coach.id}')" class="btn btn-sm">View</button>
-                        ${coach.status === 'pending_review' ? `
+                        ${status === 'pending_review' || status === 'pending' ? `
                             <button onclick="approveCoach('${coach.id}')" class="btn btn-sm btn-success">Approve</button>
                             <button onclick="rejectCoach('${coach.id}')" class="btn btn-sm btn-danger">Reject</button>
                         ` : ''}
                     </td>
                 </tr>
-            `).join('');
+            `;
+            }).join('');
         }
 
         async function viewCoach(id) {
@@ -161,11 +186,15 @@
                 const response = await fetch(`/api/coaches/${id}`);
                 const coach = await response.json();
 
+                // Normalize status for display
+                const status = (coach.status || 'pending').toLowerCase();
+                const statusDisplay = status.charAt(0).toUpperCase() + status.slice(1).replace(/_/g, ' ');
+                
                 const modalContent = document.getElementById('modalContent');
                 modalContent.innerHTML = `
                     <h2>${coach.name}</h2>
                     <p><strong>Email:</strong> ${coach.email}</p>
-                    <p><strong>Status:</strong> <span class="status-badge status-${coach.status}">${coach.status}</span></p>
+                    <p><strong>Status:</strong> <span class="status-badge status-${status}">${statusDisplay}</span></p>
                     <p><strong>Tier:</strong> ${coach.tier || 'Not set'}</p>
                     <p><strong>Created:</strong> ${new Date(coach.createdAt).toLocaleString()}</p>
 
@@ -192,7 +221,7 @@
                     </div>
 
                     <div class="modal-actions">
-                        ${coach.status === 'pending_review' ? `
+                        ${status === 'pending_review' || status === 'pending' ? `
                             <button onclick="approveCoach('${coach.id}')" class="btn btn-success">Approve</button>
                             <button onclick="rejectCoach('${coach.id}')" class="btn btn-danger">Reject</button>
                         ` : ''}
