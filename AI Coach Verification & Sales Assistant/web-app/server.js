@@ -19,9 +19,15 @@ app.use(bodyParser.json());
 const publicPath = path.join(__dirname, 'public');
 app.use(express.static(publicPath));
 
-// Serve index.html for root path
+// Serve index.html for root path and all non-API routes
 app.get('/', (req, res) => {
   res.sendFile(path.join(publicPath, 'index.html'));
+});
+
+// Serve other HTML files
+app.get('/*.html', (req, res) => {
+  const filePath = path.join(publicPath, req.path);
+  res.sendFile(filePath);
 });
 
 // Configure multer for file uploads
