@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs').promises;
+const fsSync = require('fs');
 const path = require('path');
 require('dotenv').config();
 
@@ -17,19 +18,35 @@ app.use(express.static('public'));
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
-  destination: async (req, file, cb) => {
-    const coachId = req.body.coachId || req.params.id;
-    const uploadDir = path.join(__dirname, 'uploads', coachId);
+  destination: (req, file, cb) => {
     try {
-      await fs.mkdir(uploadDir, { recursive: true });
+      // Get coachId from params (available from route) or body
+      const coachId = (req.params && req.params.id) || (req.body && req.body.coachId) || 'temp';
+      const uploadDir = path.join(__dirname, 'uploads', coachId);
+      
+      // Use synchronous mkdir for multer callback
+      if (!fsSync.existsSync(uploadDir)) {
+        fsSync.mkdirSync(uploadDir, { recursive: true });
+      }
       cb(null, uploadDir);
     } catch (error) {
-      cb(error);
+      console.error('Multer destination error:', error);
+      // Fallback to temp directory if there's an error
+      const tempDir = path.join(__dirname, 'uploads', 'temp');
+      try {
+        if (!fsSync.existsSync(tempDir)) {
+          fsSync.mkdirSync(tempDir, { recursive: true });
+        }
+        cb(null, tempDir);
+      } catch (fallbackError) {
+        cb(fallbackError);
+      }
     }
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    const ext = path.extname(file.originalname) || '';
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
   }
 });
 
@@ -526,6 +543,14 @@ function extractCredentials(conversation) {
 // Initialize server
 async function startServer() {
   await ensureDataDir();
+  
+  // Ensure uploads directory exists
+  const uploadsDir = path.join(__dirname, 'uploads');
+  try {
+    await fs.mkdir(uploadsDir, { recursive: true });
+  } catch (error) {
+    // Directory might already exist
+  }
   
   app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
