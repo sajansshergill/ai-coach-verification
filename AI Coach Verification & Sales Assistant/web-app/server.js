@@ -566,8 +566,8 @@ async function startServer() {
     // Directory might already exist
   }
   
-  // Only start server if not in Vercel environment
-  if (process.env.VERCEL !== '1') {
+  // Only start HTTP server if not in Vercel/serverless environment
+  if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
     app.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
       console.log(`📝 Coach Onboarding: http://localhost:${PORT}/onboarding.html`);
