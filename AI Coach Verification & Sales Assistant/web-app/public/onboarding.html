@@ -398,7 +398,7 @@
                     }
                 };
 
-                // Upload files if any
+                // Upload files if any (optional - don't block if it fails)
                 if (uploadedFiles.certifications.length > 0 || uploadedFiles.testimonials.length > 0) {
                     const formData = new FormData();
                     formData.append('coachId', currentCoachId);
@@ -418,10 +418,12 @@
                         });
                         
                         if (!uploadResponse.ok) {
-                            console.warn('File upload failed, continuing without files');
+                            const errorData = await uploadResponse.json().catch(() => ({}));
+                            console.warn('File upload failed:', errorData.error || 'Unknown error');
+                            // Continue without files
                         }
                     } catch (uploadError) {
-                        console.warn('File upload error:', uploadError);
+                        console.warn('File upload error:', uploadError.message);
                         // Continue even if upload fails
                     }
                 }
