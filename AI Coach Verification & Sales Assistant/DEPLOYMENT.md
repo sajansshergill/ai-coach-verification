@@ -2,203 +2,130 @@
 
 This application requires a Node.js backend server. GitHub Pages only serves static files, so you'll need to deploy to a platform that supports Node.js.
 
-## Quick Deploy Options
+---
 
-### Option 1: Vercel (Recommended - Easiest)
+## 🚀 Quick Deploy: Vercel (Recommended)
 
-1. **Install Vercel CLI:**
-   ```bash
-   npm i -g vercel
-   ```
+### Step 1: Create New Project on Vercel
 
-2. **Deploy:**
-   ```bash
-   cd web-app
-   vercel
-   ```
+1. Go to: https://vercel.com
+2. Sign in with GitHub
+3. Click **"Add New..."** → **"Project"**
+4. Import: `sajansshergill/ai-coach-verification`
 
-3. **Set environment variables:**
-   - Go to your Vercel dashboard
-   - Add `OPENAI_API_KEY` in Settings → Environment Variables
-   - Add `OPENAI_MODEL` (optional, defaults to gpt-3.5-turbo)
-   - Add `PORT` (optional, Vercel handles this)
+### Step 2: Configure Project
 
-4. **Done!** Your app will be live at `https://your-project.vercel.app`
+**CRITICAL SETTINGS:**
 
-**Or use the Vercel web interface:**
-- Push your code to GitHub
-- Go to [vercel.com](https://vercel.com)
-- Import your GitHub repository
-- Set root directory to `web-app`
-- Add environment variables
-- Deploy!
+1. **Root Directory:**
+   - Click **"Edit"** next to Root Directory
+   - Change from `/` to: **`web-app`** ⚠️ REQUIRED
+
+2. **Framework Preset:** Other
+
+3. **Build Settings:**
+   - Build Command: Leave empty
+   - Output Directory: Leave empty
+   - Install Command: `npm install`
+
+4. **Environment Variables:**
+   - Add `OPENAI_API_KEY` = your OpenAI API key
+   - Optional: `OPENAI_MODEL` = `gpt-3.5-turbo`
+
+5. **Click "Deploy"**
+
+### Step 3: Access Your Site
+
+After deployment (2-3 minutes), your site will be live at:
+```
+https://ai-coach-verification.vercel.app
+```
 
 ---
+
+## Alternative Deployment Options
 
 ### Option 2: Netlify
 
-1. **Install Netlify CLI:**
-   ```bash
-   npm i -g netlify-cli
-   ```
-
-2. **Deploy:**
-   ```bash
-   cd web-app
-   netlify deploy --prod
-   ```
-
-3. **Set environment variables:**
-   - Go to Site settings → Environment variables
-   - Add `OPENAI_API_KEY`
-   - Add `OPENAI_MODEL` (optional)
-
-**Or use Netlify web interface:**
-- Push to GitHub
-- Go to [netlify.com](https://netlify.com)
-- New site from Git → Select repository
-- Build command: `cd web-app && npm install`
-- Publish directory: `web-app/public`
-- Add environment variables
-- Deploy!
-
----
+1. Go to [netlify.com](https://netlify.com)
+2. New site from Git → Select repository
+3. Build command: `cd web-app && npm install`
+4. Publish directory: `web-app/public`
+5. Add environment variables: `OPENAI_API_KEY`
+6. Deploy!
 
 ### Option 3: Railway
 
-1. **Go to [railway.app](https://railway.app)**
-
-2. **New Project → Deploy from GitHub**
-
-3. **Select your repository**
-
-4. **Configure:**
-   - Root directory: `web-app`
-   - Build command: `npm install`
-   - Start command: `npm start`
-
-5. **Add environment variables:**
-   - `OPENAI_API_KEY`
-   - `OPENAI_MODEL` (optional)
-   - `PORT` (Railway sets this automatically)
-
-6. **Deploy!**
-
----
+1. Go to [railway.app](https://railway.app)
+2. New Project → Deploy from GitHub
+3. Root directory: `web-app`
+4. Build command: `npm install`
+5. Start command: `npm start`
+6. Add environment variables
+7. Deploy!
 
 ### Option 4: Render
 
-1. **Go to [render.com](https://render.com)**
-
-2. **New → Web Service**
-
-3. **Connect GitHub repository**
-
-4. **Configure:**
-   - Name: `ai-coach-verification`
-   - Environment: `Node`
-   - Build command: `cd web-app && npm install`
-   - Start command: `cd web-app && npm start`
-   - Root directory: `web-app`
-
-5. **Add environment variables:**
-   - `OPENAI_API_KEY`
-   - `OPENAI_MODEL` (optional)
-
-6. **Deploy!**
-
----
-
-### Option 5: Heroku
-
-1. **Install Heroku CLI:**
-   ```bash
-   npm i -g heroku
-   ```
-
-2. **Create Heroku app:**
-   ```bash
-   cd web-app
-   heroku create your-app-name
-   ```
-
-3. **Set environment variables:**
-   ```bash
-   heroku config:set OPENAI_API_KEY=your_key_here
-   heroku config:set OPENAI_MODEL=gpt-3.5-turbo
-   ```
-
-4. **Deploy:**
-   ```bash
-   git push heroku main
-   ```
+1. Go to [render.com](https://render.com)
+2. New → Web Service
+3. Connect GitHub repository
+4. Root directory: `web-app`
+5. Build: `npm install`
+6. Start: `npm start`
+7. Add environment variables
+8. Deploy!
 
 ---
 
 ## GitHub Pages (Static Preview Only)
 
-GitHub Pages is set up to show a static preview of the frontend, but **full functionality requires the backend server**.
+GitHub Pages is configured but only shows the UI. Backend features won't work.
 
-The static preview is available at:
-`https://[your-username].github.io/ai-coach-verification/`
+To enable:
+1. Go to repository Settings → Pages
+2. Source: GitHub Actions
+3. Site will be at: `https://sajansshergill.github.io/ai-coach-verification/`
 
-**Note:** The static preview will show the UI but API calls won't work. Use one of the options above for full functionality.
+**Note:** Full functionality requires backend deployment (use Vercel/Netlify/etc.)
 
 ---
 
 ## Environment Variables
 
-All deployment options require these environment variables:
+All platforms require:
 
 ```env
 OPENAI_API_KEY=your_openai_api_key_here
-OPENAI_MODEL=gpt-3.5-turbo  # Optional, defaults to gpt-3.5-turbo
-PORT=3000  # Optional, most platforms set this automatically
+OPENAI_MODEL=gpt-3.5-turbo  # Optional
 ```
-
----
-
-## File Uploads
-
-For file uploads to work in production:
-
-1. **Vercel:** Uses serverless functions - file uploads work automatically
-2. **Netlify:** May need serverless functions setup
-3. **Railway/Render:** File uploads work with persistent storage
-4. **Heroku:** File uploads work with ephemeral storage (consider S3 for production)
-
----
-
-## Recommended for Production
-
-**Best option:** **Vercel** or **Railway**
-- Easy setup
-- Free tier available
-- Automatic HTTPS
-- Good performance
-- Easy environment variable management
 
 ---
 
 ## Troubleshooting
 
+### Vercel: "Invalid function name"
+- Make sure Root Directory is set to `web-app`
+- Delete and recreate project if needed
+
+### Build fails
+- Check Root Directory = `web-app`
+- Verify `package.json` exists in `web-app/`
+- Check build logs for specific errors
+
 ### API calls not working
-- Make sure you deployed the backend, not just static files
-- Check environment variables are set correctly
-- Verify the API endpoints are accessible
-
-### File uploads not working
-- Check file size limits (default is 10MB)
-- Verify multer configuration
-- Check server logs for errors
-
-### OpenAI API errors
-- Verify `OPENAI_API_KEY` is set correctly
-- Check API key has credits/quota
-- Verify model name is correct
+- Verify `OPENAI_API_KEY` environment variable is set
+- Check function logs in deployment dashboard
+- Verify API endpoints are accessible
 
 ---
 
-## Need Help?
+## Current Configuration
 
-Check the main `README.md` or `web-app/README.md` for more details.
+- **Entry Point:** `web-app/api.js`
+- **Server:** `web-app/server.js`
+- **Static Files:** `web-app/public/`
+- **Config:** `web-app/vercel.json`
+
+---
+
+**Recommended:** Use Vercel for easiest deployment with full functionality.
