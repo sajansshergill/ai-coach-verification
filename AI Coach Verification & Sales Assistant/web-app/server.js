@@ -14,7 +14,15 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static('public'));
+
+// Serve static files from public directory
+const publicPath = path.join(__dirname, 'public');
+app.use(express.static(publicPath));
+
+// Serve index.html for root path
+app.get('/', (req, res) => {
+  res.sendFile(path.join(publicPath, 'index.html'));
+});
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -552,17 +560,24 @@ async function startServer() {
     // Directory might already exist
   }
   
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📝 Coach Onboarding: http://localhost:${PORT}/onboarding.html`);
-    console.log(`👤 Admin Dashboard: http://localhost:${PORT}/admin.html`);
-    console.log(`💬 Lead Response: http://localhost:${PORT}/leads.html`);
-    
-    if (!process.env.OPENAI_API_KEY) {
-      console.warn('⚠️  WARNING: OPENAI_API_KEY not set. AI features will not work.');
-      console.warn('   Create a .env file with: OPENAI_API_KEY=your_key_here');
-    }
-  });
+  // Only start server if not in Vercel environment
+  if (process.env.VERCEL !== '1') {
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
+      console.log(`📝 Coach Onboarding: http://localhost:${PORT}/onboarding.html`);
+      console.log(`👤 Admin Dashboard: http://localhost:${PORT}/admin.html`);
+      console.log(`💬 Lead Response: http://localhost:${PORT}/leads.html`);
+      
+      if (!process.env.OPENAI_API_KEY) {
+        console.warn('⚠️  WARNING: OPENAI_API_KEY not set. AI features will not work.');
+        console.warn('   Create a .env file with: OPENAI_API_KEY=your_key_here');
+      }
+    });
+  }
 }
 
+// Initialize on module load
 startServer();
+
+// Export app for Vercel serverless functions
+module.exports = app;
